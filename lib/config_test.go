@@ -1,7 +1,7 @@
-package again_test
+package gin_test
 
 import (
-	"github.com/dirkarnez/again/lib"	
+	"github.com/dirkarnez/again/lib"
 	"testing"
 )
 
