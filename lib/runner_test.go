@@ -1,4 +1,4 @@
-package gin_test
+package again_test
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/codegangsta/gin/lib"
+	"github.com/dirkarnez/again/lib"
 )
 
 func Test_NewRunner(t *testing.T) {
@@ -18,7 +18,7 @@ func Test_NewRunner(t *testing.T) {
 	}
 	bin := filepath.Join("test_fixtures", filename)
 
-	runner := gin.NewRunner(bin)
+	runner := again.NewRunner(bin)
 
 	fi, _ := runner.Info()
 	expect(t, fi.Name(), filename)
@@ -29,7 +29,7 @@ func Test_Runner_Run(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		bin += ".bat"
 	}
-	runner := gin.NewRunner(bin)
+	runner := again.NewRunner(bin)
 
 	cmd, err := runner.Run()
 	expect(t, err, nil)
@@ -45,7 +45,7 @@ func Test_Runner_Kill(t *testing.T) {
 		bin += ".bat"
 	}
 
-	runner := gin.NewRunner(bin)
+	runner := again.NewRunner(bin)
 
 	cmd1, err := runner.Run()
 	expect(t, err, nil)
@@ -77,7 +77,7 @@ func Test_Runner_SetWriter(t *testing.T) {
 		bin += ".bat"
 	}
 
-	runner := gin.NewRunner(bin)
+	runner := again.NewRunner(bin)
 	runner.SetWriter(buff)
 
 	cmd, err := runner.Run()

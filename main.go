@@ -20,7 +20,7 @@ import (
 
 var (
 	startTime  = time.Now()
-	logger     = log.New(os.Stdout, "[gin] ", 0)
+	logger     = log.New(os.Stdout, "[again] ", 0)
 	buildError error
 	colorGreen = string([]byte{27, 91, 57, 55, 59, 51, 50, 59, 49, 109})
 	colorRed   = string([]byte{27, 91, 57, 55, 59, 51, 49, 59, 49, 109})
@@ -29,20 +29,20 @@ var (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "gin"
+	app.Name = "again"
 	app.Usage = "A live reload utility for Go web applications."
 	app.Action = MainAction
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "laddr,l",
 			Value:  "",
-			EnvVar: "GIN_LADDR",
+			EnvVar: "AGAIN_LADDR",
 			Usage:  "listening address for the proxy server",
 		},
 		cli.IntFlag{
 			Name:   "port,p",
 			Value:  3000,
-			EnvVar: "GIN_PORT",
+			EnvVar: "AGAIN_PORT",
 			Usage:  "port for the proxy server",
 		},
 		cli.IntFlag{
@@ -54,64 +54,64 @@ func main() {
 		cli.StringFlag{
 			Name:   "bin,b",
 			Value:  "app",
-			EnvVar: "GIN_BIN",
+			EnvVar: "AGAIN_BIN",
 			Usage:  "name of generated binary file",
 		},
 		cli.StringFlag{
 			Name:   "path,t",
 			Value:  ".",
-			EnvVar: "GIN_PATH",
+			EnvVar: "AGAIN_PATH",
 			Usage:  "Path to watch files from",
 		},
 		cli.StringFlag{
 			Name:   "build,d",
 			Value:  "",
-			EnvVar: "GIN_BUILD",
+			EnvVar: "AGAIN_BUILD",
 			Usage:  "Path to build files from (defaults to same value as --path)",
 		},
 		cli.StringSliceFlag{
 			Name:   "excludeDir,x",
 			Value:  &cli.StringSlice{},
-			EnvVar: "GIN_EXCLUDE_DIR",
+			EnvVar: "AGAIN_EXCLUDE_DIR",
 			Usage:  "Relative directories to exclude",
 		},
 		cli.BoolFlag{
 			Name:   "all",
-			EnvVar: "GIN_ALL",
+			EnvVar: "AGAIN_ALL",
 			Usage:  "reloads whenever any file changes, as opposed to reloading only on .go file change",
 		},
 		cli.BoolFlag{
 			Name:   "godep,g",
-			EnvVar: "GIN_GODEP",
+			EnvVar: "AGAIN_GODEP",
 			Usage:  "use godep when building",
 		},
 		cli.StringFlag{
 			Name:   "buildArgs",
-			EnvVar: "GIN_BUILD_ARGS",
+			EnvVar: "AGAIN_BUILD_ARGS",
 			Usage:  "Additional go build arguments",
 		},
 		cli.StringFlag{
 			Name:   "certFile",
-			EnvVar: "GIN_CERT_FILE",
+			EnvVar: "AGAIN_CERT_FILE",
 			Usage:  "TLS Certificate",
 		},
 		cli.StringFlag{
 			Name:   "keyFile",
-			EnvVar: "GIN_KEY_FILE",
+			EnvVar: "AGAIN_KEY_FILE",
 			Usage:  "TLS Certificate Key",
 		},
 		cli.StringFlag{
 			Name:   "logPrefix",
-			EnvVar: "GIN_LOG_PREFIX",
+			EnvVar: "AGAIN_LOG_PREFIX",
 			Usage:  "Log prefix",
-			Value:  "gin",
+			Value:  "again",
 		},
 	}
 	app.Commands = []cli.Command{
 		{
 			Name:      "run",
 			ShortName: "r",
-			Usage:     "Run the gin proxy in the current working directory",
+			Usage:     "Run the again proxy in the current working directory",
 			Action:    MainAction,
 		},
 		{
@@ -156,12 +156,12 @@ func MainAction(c *cli.Context) {
 	if buildPath == "" {
 		buildPath = c.GlobalString("path")
 	}
-	builder := gin.NewBuilder(buildPath, c.GlobalString("bin"), c.GlobalBool("godep"), wd, buildArgs)
-	runner := gin.NewRunner(filepath.Join(wd, builder.Binary()), c.Args()...)
+	builder := again.NewBuilder(buildPath, c.GlobalString("bin"), c.GlobalBool("godep"), wd, buildArgs)
+	runner := again.NewRunner(filepath.Join(wd, builder.Binary()), c.Args()...)
 	runner.SetWriter(os.Stdout)
-	proxy := gin.NewProxy(builder, runner)
+	proxy := again.NewProxy(builder, runner)
 
-	config := &gin.Config{
+	config := &again.Config{
 		Laddr:    laddr,
 		Port:     port,
 		ProxyTo:  "http://localhost:" + appPort,
@@ -207,7 +207,7 @@ func EnvAction(c *cli.Context) {
 	}
 }
 
-func build(builder gin.Builder, runner gin.Runner, logger *log.Logger) {
+func build(builder again.Builder, runner again.Runner, logger *log.Logger) {
 	logger.Println("Building...")
 
 	err := builder.Build()
@@ -255,7 +255,7 @@ func scanChanges(watchPath string, excludeDirs []string, allFiles bool, cb scanC
 	}
 }
 
-func shutdown(runner gin.Runner) {
+func shutdown(runner again.Runner) {
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
