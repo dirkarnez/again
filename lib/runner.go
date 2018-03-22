@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 	"time"
+	"fmt"
 )
 
 type Runner interface {
@@ -26,6 +27,7 @@ type runner struct {
 }
 
 func NewRunner(bin string, args ...string) Runner {
+	fmt.Println(args)
 	return &runner{
 		bin:       bin,
 		args:      args,
