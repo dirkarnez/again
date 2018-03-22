@@ -1,7 +1,8 @@
 package again_test
 
 import (
-	"github.com/dirkarnez/again/lib"	"testing"
+	"github.com/dirkarnez/again/lib"	
+	"testing"
 )
 
 func Test_LoadConfig(t *testing.T) {
