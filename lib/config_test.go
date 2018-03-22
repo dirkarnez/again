@@ -1,5 +1,5 @@
-package gin_test
-/*
+package again_test
+
 import "github.com/dirkarnez/again/lib"
 import "testing"
 
@@ -23,4 +23,4 @@ func Test_LoadConfig_WithMalformedFile(t *testing.T) {
 
 	refute(t, err, nil)
 	expect(t, err.Error(), "Unable to parse configuration file test_fixtures/bad_config.json")
-}*/
+}
