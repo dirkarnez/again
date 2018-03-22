@@ -5,31 +5,26 @@ import (
 	"fmt"
 
 	"github.com/codegangsta/envy/lib"
-	"github.com/codegangsta/gin/lib"
+	"github.com/dirkarnez/again/lib"
 	shellwords "github.com/mattn/go-shellwords"
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/0xAX/notificator"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"syscall"
 	"time"
 )
 
 var (
-	startTime     = time.Now()
-	logger        = log.New(os.Stdout, "[gin] ", 0)
-	immediate     = false
-	buildError    error
-	colorGreen    = string([]byte{27, 91, 57, 55, 59, 51, 50, 59, 49, 109})
-	colorRed      = string([]byte{27, 91, 57, 55, 59, 51, 49, 59, 49, 109})
-	colorReset    = string([]byte{27, 91, 48, 109})
-	notifier      = notificator.New(notificator.Options{AppName: "Gin Build"})
-	notifications = false
+	startTime  = time.Now()
+	logger     = log.New(os.Stdout, "[gin] ", 0)
+	buildError error
+	colorGreen = string([]byte{27, 91, 57, 55, 59, 51, 50, 59, 49, 109})
+	colorRed   = string([]byte{27, 91, 57, 55, 59, 51, 49, 59, 49, 109})
+	colorReset = string([]byte{27, 91, 48, 109})
 )
 
 func main() {
@@ -58,7 +53,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:   "bin,b",
-			Value:  "gin-bin",
+			Value:  "app",
 			EnvVar: "GIN_BIN",
 			Usage:  "name of generated binary file",
 		},
@@ -79,11 +74,6 @@ func main() {
 			Value:  &cli.StringSlice{},
 			EnvVar: "GIN_EXCLUDE_DIR",
 			Usage:  "Relative directories to exclude",
-		},
-		cli.BoolFlag{
-			Name:   "immediate,i",
-			EnvVar: "GIN_IMMEDIATE",
-			Usage:  "run the server immediately after it's built",
 		},
 		cli.BoolFlag{
 			Name:   "all",
@@ -116,11 +106,6 @@ func main() {
 			Usage:  "Log prefix",
 			Value:  "gin",
 		},
-		cli.BoolFlag{
-			Name:   "notifications",
-			EnvVar: "GIN_NOTIFICATIONS",
-			Usage:  "Enables desktop notifications",
-		},
 	}
 	app.Commands = []cli.Command{
 		{
@@ -145,11 +130,9 @@ func MainAction(c *cli.Context) {
 	port := c.GlobalInt("port")
 	all := c.GlobalBool("all")
 	appPort := strconv.Itoa(c.GlobalInt("appPort"))
-	immediate = c.GlobalBool("immediate")
 	keyFile := c.GlobalString("keyFile")
 	certFile := c.GlobalString("certFile")
 	logPrefix := c.GlobalString("logPrefix")
-	notifications = c.GlobalBool("notifications")
 
 	logger.SetPrefix(fmt.Sprintf("[%s] ", logPrefix))
 
@@ -222,37 +205,20 @@ func EnvAction(c *cli.Context) {
 	for k, v := range env {
 		fmt.Printf("%s: %s\n", k, v)
 	}
-
 }
 
 func build(builder gin.Builder, runner gin.Runner, logger *log.Logger) {
 	logger.Println("Building...")
 
-	if notifications {
-		notifier.Push("Build Started!", "Building "+builder.Binary()+"...", "", notificator.UR_NORMAL)
-	}
 	err := builder.Build()
 	if err != nil {
 		buildError = err
 		logger.Printf("%sBuild failed%s\n", colorRed, colorReset)
 		fmt.Println(builder.Errors())
-		buildErrors := strings.Split(builder.Errors(), "\n")
-		if notifications {
-			if err := notifier.Push("Build FAILED!", buildErrors[1], "", notificator.UR_CRITICAL); err != nil {
-				logger.Println("Notification send failed")
-			}
-		}
 	} else {
 		buildError = nil
 		logger.Printf("%sBuild finished%s\n", colorGreen, colorReset)
-		if immediate {
-			runner.Run()
-		}
-		if notifications {
-			if err := notifier.Push("Build Succeded", "Build Finished!", "", notificator.UR_CRITICAL); err != nil {
-				logger.Println("Notification send failed")
-			}
-		}
+		runner.Run()
 	}
 
 	time.Sleep(100 * time.Millisecond)

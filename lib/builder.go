@@ -55,7 +55,17 @@ func (b *builder) Build() error {
 	} else {
 		getCommand := exec.Command("go", "get", "./")
 		getCommand.Dir = b.dir
-		getCommand.Output()
+		out, _ := getCommand.CombinedOutput()
+
+		if getCommand.ProcessState.Success() {
+			b.errors = ""
+		} else {
+			b.errors = string(out)
+		}
+	
+		if len(b.errors) > 0 {
+			return fmt.Errorf(b.errors)
+		}
 	}
 
 	command = exec.Command(args[0], args[1:]...)
