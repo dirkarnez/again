@@ -21,7 +21,7 @@ func Test_Builder_Build_Success(t *testing.T) {
 		t.Fatalf("Could not get working directory: %v", err)
 	}
 
-	builder := again.NewBuilder(dir, bin, false, wd, []string{})
+	builder := again.NewBuilder(dir, bin, wd, []string{})
 	err = builder.Build()
 	expect(t, err, nil)
 

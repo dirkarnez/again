@@ -80,11 +80,6 @@ func main() {
 			EnvVar: "AGAIN_ALL",
 			Usage:  "reloads whenever any file changes, as opposed to reloading only on .go file change",
 		},
-		cli.BoolFlag{
-			Name:   "godep,g",
-			EnvVar: "AGAIN_GODEP",
-			Usage:  "use godep when building",
-		},
 		cli.StringFlag{
 			Name:   "buildArgs",
 			EnvVar: "AGAIN_BUILD_ARGS",
@@ -156,7 +151,7 @@ func MainAction(c *cli.Context) {
 	if buildPath == "" {
 		buildPath = c.GlobalString("path")
 	}
-	builder := again.NewBuilder(buildPath, c.GlobalString("bin"), c.GlobalBool("godep"), wd, buildArgs)
+	builder := again.NewBuilder(buildPath, c.GlobalString("bin"), wd, buildArgs)
 	runner := again.NewRunner(filepath.Join(wd, builder.Binary()), c.Args()...)
 	runner.SetWriter(os.Stdout)
 	proxy := again.NewProxy(builder, runner)

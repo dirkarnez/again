@@ -18,12 +18,11 @@ type builder struct {
 	dir       string
 	binary    string
 	errors    string
-	useGodep  bool
 	wd        string
 	buildArgs []string
 }
 
-func NewBuilder(dir string, bin string, useGodep bool, wd string, buildArgs []string) Builder {
+func NewBuilder(dir string, bin string, wd string, buildArgs []string) Builder {
 	if len(bin) == 0 {
 		bin = "bin"
 	}
@@ -35,7 +34,7 @@ func NewBuilder(dir string, bin string, useGodep bool, wd string, buildArgs []st
 		}
 	}
 
-	return &builder{dir: dir, binary: bin, useGodep: useGodep, wd: wd, buildArgs: buildArgs}
+	return &builder{dir: dir, binary: bin, wd: wd, buildArgs: buildArgs}
 }
 
 func (b *builder) Binary() string {
@@ -49,26 +48,21 @@ func (b *builder) Errors() string {
 func (b *builder) Build() error {
 	args := append([]string{"go", "build", "-o", filepath.Join(b.wd, b.binary)}, b.buildArgs...)
 
-	var command *exec.Cmd
-	if b.useGodep {
-		args = append([]string{"godep"}, args...)
-	} else {
-		getCommand := exec.Command("go", "get", "./")
-		getCommand.Dir = b.dir
-		out, _ := getCommand.CombinedOutput()
+	depCommand := exec.Command("dep", "ensure")
+	depCommand.Dir = b.dir
+	out, _ := depCommand.CombinedOutput()
 
-		if getCommand.ProcessState.Success() {
-			b.errors = ""
-		} else {
-			b.errors = string(out)
-		}
-	
-		if len(b.errors) > 0 {
-			return fmt.Errorf(b.errors)
-		}
+	if depCommand.ProcessState.Success() {
+		b.errors = ""
+	} else {
+		b.errors = string(out)
 	}
 
-	command = exec.Command(args[0], args[1:]...)
+	if len(b.errors) > 0 {
+		return fmt.Errorf(b.errors)
+	}
+
+	command := exec.Command(args[0], args[1:]...)
 
 	command.Dir = b.dir
 
