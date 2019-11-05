@@ -52,7 +52,7 @@ func (b *builder) Errors() string {
 func (b *builder) Build() error {
 	args := append([]string{"go", "build", "-o", filepath.Join(b.wd, b.binary)}, b.buildArgs...)
 
-	if b.ShouldDepEnsure() {
+	/*if b.ShouldDepEnsure() {
 		depCommand := exec.Command("dep", "ensure")
 		depCommand.Dir = b.dir
 		out, _ := depCommand.CombinedOutput()
@@ -66,7 +66,7 @@ func (b *builder) Build() error {
 		if len(b.errors) > 0 {
 			return fmt.Errorf(b.errors)
 		}
-	}
+	}*/
 
 	command := exec.Command(args[0], args[1:]...)
 
