@@ -98,8 +98,8 @@ func (r *runner) Exited() bool {
 }
 
 func (r *runner) runBin() error {
-	logger.Println("running bin...")
-	
+	log.Println("running bin...")
+
 	r.command = exec.Command(r.bin, r.args...)
 	stdout, err := r.command.StdoutPipe()
 	if err != nil {
