@@ -50,28 +50,23 @@ func (b *builder) Errors() string {
 }
 
 func (b *builder) Build() error {
+	goGet := exec.Command("go", "get", ".")
+	goGet.Dir = b.dir
+	goGetOutput, _ := goGet.CombinedOutput()
+
+	if goGet.ProcessState.Success() {
+		b.errors = ""
+	} else {
+		b.errors = string(goGetOutput)
+	}
+
+	if len(b.errors) > 0 {
+		return fmt.Errorf(b.errors)
+	}
+
 	args := append([]string{"go", "build", "-o", filepath.Join(b.wd, b.binary)}, b.buildArgs...)
-
-	/*if b.ShouldDepEnsure() {
-		depCommand := exec.Command("dep", "ensure")
-		depCommand.Dir = b.dir
-		out, _ := depCommand.CombinedOutput()
-	
-		if depCommand.ProcessState.Success() {
-			b.errors = ""
-		} else {
-			b.errors = string(out)
-		}
-
-		if len(b.errors) > 0 {
-			return fmt.Errorf(b.errors)
-		}
-	}*/
-
 	command := exec.Command(args[0], args[1:]...)
-
 	command.Dir = b.dir
-
 	output, err := command.CombinedOutput()
 
 	if command.ProcessState.Success() {

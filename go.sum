@@ -1,0 +1,8 @@
+github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 h1:ihrIKrLQzm6Q6NJHBMemvaIGTFxgxQUEkn2AjN0Aulw=
+github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4/go.mod h1:X7wHz0C25Lga6CnJ4WAQNbUQ9P/8eWSNv8qIO71YkSM=
+github.com/google/uuid v1.1.2 h1:EVhdT+1Kseyi1/pUmXKaFxYsDNy9RQYkMWRH68J/W7Y=
+github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/mattn/go-shellwords v1.0.10 h1:Y7Xqm8piKOO3v10Thp7Z36h4FYFjt5xB//6XvOrs2Gw=
+github.com/mattn/go-shellwords v1.0.10/go.mod h1:EZzvwXDESEeg03EKmM+RmDnNOPKG4lLtQsUlTZDWQ8Y=
+gopkg.in/urfave/cli.v1 v1.20.0 h1:NdAVW6RYxDif9DhDHaAortIu956m2c0v+09AZBPTbE0=
+gopkg.in/urfave/cli.v1 v1.20.0/go.mod h1:vuBzUtMdQeixQj8LVd+/98pzhxNGQoyuPBlsXHOQNO0=

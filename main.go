@@ -6,6 +6,7 @@ import (
 
 	"github.com/codegangsta/envy/lib"
 	"github.com/dirkarnez/again/lib"
+	"github.com/google/uuid"
 	shellwords "github.com/mattn/go-shellwords"
 	"gopkg.in/urfave/cli.v1"
 
@@ -50,12 +51,6 @@ func main() {
 			Value:  3001,
 			EnvVar: "BIN_APP_PORT",
 			Usage:  "port for the Go web server",
-		},
-		cli.StringFlag{
-			Name:   "bin,b",
-			Value:  "app",
-			EnvVar: "AGAIN_BIN",
-			Usage:  "name of generated binary file",
 		},
 		cli.StringFlag{
 			Name:   "path,t",
@@ -151,7 +146,8 @@ func MainAction(c *cli.Context) {
 	if buildPath == "" {
 		buildPath = c.GlobalString("path")
 	}
-	builder := again.NewBuilder(buildPath, c.GlobalString("bin"), wd, buildArgs)
+	
+	builder := again.NewBuilder(buildPath, uuid.New().String(), wd, buildArgs)
 	runner := again.NewRunner(filepath.Join(wd, builder.Binary()), c.Args()...)
 	runner.SetWriter(os.Stdout)
 	proxy := again.NewProxy(builder, runner)
