@@ -5,4 +5,5 @@ again
 
 ### Reference
 - [cj1128/hot-reload-c](https://github.com/cj1128/hot-reload-c)
+  - [热重载 C - CJ Ting's Blog](https://cjting.me/2021/06/10/hot-reload-c/)
 - [dirkarnez/live-reload](https://github.com/dirkarnez/live-reload)
