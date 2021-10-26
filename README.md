@@ -6,6 +6,7 @@ again
 - add debug mode with vscode
 
 ### Reference
+- [What is GDNative? — Godot Engine (latest) documentation in English](https://docs.godotengine.org/en/latest/tutorials/scripting/gdnative/what_is_gdnative.html)
 - [cj1128/hot-reload-c](https://github.com/cj1128/hot-reload-c)
   - [热重载 C - CJ Ting's Blog](https://cjting.me/2021/06/10/hot-reload-c/)
 - [dirkarnez/live-reload](https://github.com/dirkarnez/live-reload)
