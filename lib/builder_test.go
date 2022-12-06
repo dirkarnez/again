@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/dirkarnez/again/lib"
+	again "github.com/dirkarnez/again/lib"
 )
 
 func Test_Builder_Build_Success(t *testing.T) {
@@ -21,7 +21,7 @@ func Test_Builder_Build_Success(t *testing.T) {
 		t.Fatalf("Could not get working directory: %v", err)
 	}
 
-	builder := again.NewBuilder(dir, bin, wd, []string{})
+	builder := again.NewBuilder(dir, bin, wd, "cmd", []string{})
 	err = builder.Build()
 	expect(t, err, nil)
 

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/codegangsta/envy/lib"
-	"github.com/dirkarnez/again/lib"
+	envy "github.com/codegangsta/envy/lib"
+	again "github.com/dirkarnez/again/lib"
 	"github.com/google/uuid"
 	shellwords "github.com/mattn/go-shellwords"
 	"gopkg.in/urfave/cli.v1"
@@ -20,9 +20,9 @@ import (
 )
 
 var (
-	startTime  = time.Now()
-	logger     = log.New(os.Stdout, "[again] ", 0)
-	buildError error
+	startTime = time.Now()
+	logger    = log.New(os.Stdout, "[again] ", 0)
+	//buildError error
 	colorGreen = string([]byte{27, 91, 57, 55, 59, 51, 50, 59, 49, 109})
 	colorRed   = string([]byte{27, 91, 57, 55, 59, 51, 49, 59, 49, 109})
 	colorReset = string([]byte{27, 91, 48, 109})
@@ -31,7 +31,7 @@ var (
 func main() {
 	app := cli.NewApp()
 	app.Name = "again"
-	app.Usage = "A live reload utility for Go web applications."
+	app.Usage = "A live reload utility for web applications."
 	app.Action = MainAction
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -73,12 +73,20 @@ func main() {
 		cli.BoolFlag{
 			Name:   "all",
 			EnvVar: "AGAIN_ALL",
-			Usage:  "reloads whenever any file changes, as opposed to reloading only on .go file change",
+			Usage:  "reloads whenever any file changes",
+			//			Usage:  "reloads whenever any file changes, as opposed to reloading only on .go file change",
+		},
+		cli.StringFlag{
+			Name:   "buildCmd",
+			Value:  "",
+			EnvVar: "AGAIN_BUILD_CMD",
+			Usage:  "Build command",
 		},
 		cli.StringFlag{
 			Name:   "buildArgs",
+			Value:  "",
 			EnvVar: "AGAIN_BUILD_ARGS",
-			Usage:  "Additional go build arguments",
+			Usage:  "Build arguments",
 		},
 		cli.StringFlag{
 			Name:   "certFile",
@@ -118,7 +126,8 @@ func main() {
 func MainAction(c *cli.Context) {
 	laddr := c.GlobalString("laddr")
 	port := c.GlobalInt("port")
-	all := c.GlobalBool("all")
+	buildCmd := c.GlobalString("buildCmd")
+	c.GlobalBool("all")
 	appPort := strconv.Itoa(c.GlobalInt("appPort"))
 	keyFile := c.GlobalString("keyFile")
 	certFile := c.GlobalString("certFile")
@@ -146,8 +155,8 @@ func MainAction(c *cli.Context) {
 	if buildPath == "" {
 		buildPath = c.GlobalString("path")
 	}
-	
-	builder := again.NewBuilder(buildPath, uuid.New().String(), wd, buildArgs)
+
+	builder := again.NewBuilder(buildPath, uuid.New().String(), wd, buildCmd, buildArgs)
 	runner := again.NewRunner(filepath.Join(wd, builder.Binary()), c.Args()...)
 	runner.SetWriter(os.Stdout)
 	proxy := again.NewProxy(builder, runner)
@@ -177,7 +186,8 @@ func MainAction(c *cli.Context) {
 	build(builder, runner, logger)
 
 	// scan for changes
-	scanChanges(c.GlobalString("path"), c.GlobalStringSlice("excludeDir"), all, func(path string) {
+	//scanChanges(c.GlobalString("path"), c.GlobalStringSlice("excludeDir"), all, func(path string) {
+	scanChanges(c.GlobalString("path"), c.GlobalStringSlice("excludeDir"), true, func(path string) {
 		runner.Kill()
 		build(builder, runner, logger)
 	})
@@ -203,11 +213,11 @@ func build(builder again.Builder, runner again.Runner, logger *log.Logger) {
 
 	err := builder.Build()
 	if err != nil {
-		buildError = err
+		//buildError = err
 		logger.Printf("%sBuild failed%s\n", colorRed, colorReset)
 		fmt.Println(builder.Errors())
 	} else {
-		buildError = nil
+		//buildError = nil
 		logger.Printf("%sBuild finished%s\n", colorGreen, colorReset)
 		runner.Run()
 	}
@@ -234,7 +244,8 @@ func scanChanges(watchPath string, excludeDirs []string, allFiles bool, cb scanC
 				return nil
 			}
 
-			if (allFiles || filepath.Ext(path) == ".go") && info.ModTime().After(startTime) {
+			// if (allFiles || filepath.Ext(path) == ".go") && info.ModTime().After(startTime) {
+			if allFiles && info.ModTime().After(startTime) {
 				cb(path)
 				startTime = time.Now()
 				return errors.New("done")

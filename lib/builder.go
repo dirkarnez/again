@@ -3,18 +3,15 @@ package again
 import (
 	"fmt"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strings"
-	"go/parser"
-	"go/token"
 )
 
 type Builder interface {
 	Build() error
 	Binary() string
 	Errors() string
-	ShouldDepEnsure() bool
+	// ShouldDepEnsure() bool
 }
 
 type builder struct {
@@ -22,11 +19,12 @@ type builder struct {
 	binary    string
 	errors    string
 	wd        string
+	buildCmd  string
 	buildArgs []string
 	importSet map[string]bool
 }
 
-func NewBuilder(dir string, bin string, wd string, buildArgs []string) Builder {
+func NewBuilder(dir string, bin string, wd string, buildCmd string, buildArgs []string) Builder {
 	if len(bin) == 0 {
 		bin = "bin"
 	}
@@ -37,8 +35,7 @@ func NewBuilder(dir string, bin string, wd string, buildArgs []string) Builder {
 			bin += ".exe"
 		}
 	}
-
-	return &builder{dir: dir, binary: bin, wd: wd, buildArgs: buildArgs, importSet: make(map[string]bool)}
+	return &builder{dir: dir, binary: bin, wd: wd, buildCmd: buildCmd, buildArgs: buildArgs, importSet: make(map[string]bool)}
 }
 
 func (b *builder) Binary() string {
@@ -50,54 +47,54 @@ func (b *builder) Errors() string {
 }
 
 func (b *builder) Build() error {
-	goGet := exec.Command("go", "get", ".")
-	goGet.Dir = b.dir
-	goGetOutput, _ := goGet.CombinedOutput()
+	buildExecCommand := exec.Command(b.buildCmd, b.buildArgs...)
+	buildExecCommand.Dir = b.dir
+	buildExecCommandOutput, err := buildExecCommand.CombinedOutput()
 
-	if goGet.ProcessState.Success() {
+	if buildExecCommand.ProcessState.Success() {
 		b.errors = ""
 	} else {
-		b.errors = string(goGetOutput)
+		b.errors = string(buildExecCommandOutput)
 	}
 
 	if len(b.errors) > 0 {
 		return fmt.Errorf(b.errors)
 	}
 
-	args := append([]string{"go", "build", "-o", filepath.Join(b.wd, b.binary)}, b.buildArgs...)
-	command := exec.Command(args[0], args[1:]...)
-	command.Dir = b.dir
-	output, err := command.CombinedOutput()
+	// args := append([]string{"go", "build", "-o", filepath.Join(b.wd, b.binary)}, b.buildArgs...)
+	// command := exec.Command(args[0], args[1:]...)
+	// command.Dir = b.dir
+	// output, err := command.CombinedOutput()
 
-	if command.ProcessState.Success() {
-		b.errors = ""
-	} else {
-		b.errors = string(output)
-	}
+	// if command.ProcessState.Success() {
+	// 	b.errors = ""
+	// } else {
+	// 	b.errors = string(output)
+	// }
 
-	if len(b.errors) > 0 {
-		return fmt.Errorf(b.errors)
-	}
+	// if len(b.errors) > 0 {
+	// 	return fmt.Errorf(b.errors)
+	// }
 
 	return err
 }
 
-func (b *builder) ShouldDepEnsure () bool {
-	fileset := token.NewFileSet()
+// func (b *builder) ShouldDepEnsure () bool {
+// 	fileset := token.NewFileSet()
 
-	pkgs, _ := parser.ParseDir(fileset, b.wd, nil, parser.ImportsOnly)
+// 	pkgs, _ := parser.ParseDir(fileset, b.wd, nil, parser.ImportsOnly)
 
-	var hasNewDependency bool = false
-	for _, pkg := range pkgs {
-		for _, astFile := range pkg.Files {
-			for _, importSpec := range astFile.Imports {
-				_, found := b.importSet[importSpec.Path.Value]
-				if !found {
-					hasNewDependency = true
-				}
-				b.importSet[importSpec.Path.Value] = true
-			}
-		}
-	}
-	return hasNewDependency
-}
+// 	var hasNewDependency bool = false
+// 	for _, pkg := range pkgs {
+// 		for _, astFile := range pkg.Files {
+// 			for _, importSpec := range astFile.Imports {
+// 				_, found := b.importSet[importSpec.Path.Value]
+// 				if !found {
+// 					hasNewDependency = true
+// 				}
+// 				b.importSet[importSpec.Path.Value] = true
+// 			}
+// 		}
+// 	}
+// 	return hasNewDependency
+// }

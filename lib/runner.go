@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"runtime"
 	"time"
-	"fmt"
 )
 
 type Runner interface {
@@ -27,7 +26,6 @@ type runner struct {
 }
 
 func NewRunner(bin string, args ...string) Runner {
-	fmt.Println(args)
 	return &runner{
 		bin:       bin,
 		args:      args,
@@ -99,7 +97,7 @@ func (r *runner) Exited() bool {
 
 func (r *runner) runBin() error {
 	log.Println("running bin...")
-	
+
 	r.command = exec.Command(r.bin, r.args...)
 	stdout, err := r.command.StdoutPipe()
 	if err != nil {
