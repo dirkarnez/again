@@ -47,7 +47,9 @@ func (b *builder) Errors() string {
 }
 
 func (b *builder) Build() error {
-	buildExecCommand := exec.Command(b.buildCmd, b.buildArgs...)
+	// buildExecCommand := exec.Command(b.buildCmd, b.buildArgs...)
+	args := append([]string{"go", "build", "-o", filepath.Join(b.wd, b.binary)}, b.buildArgs...)
+	buildExecCommand := exec.Command(args[0], args[1:]...)
 	buildExecCommand.Dir = b.dir
 	buildExecCommandOutput, err := buildExecCommand.CombinedOutput()
 
